@@ -373,6 +373,26 @@
 #error "BOOT_FILE_SYS_ENABLE must be 0 or 1"
 #endif
 
+#ifndef BOOT_FILE_FAT_SYS_ENABLE
+#define BOOT_FILE_FAT_SYS_ENABLE         (0)
+#endif
+
+#if (BOOT_FILE_FAT_SYS_ENABLE < 0) || (BOOT_FILE_FAT_SYS_ENABLE > 1)
+#error "BOOT_FILE_FAT_SYS_ENABLE must be 0 or 1"
+#endif
+
+#ifndef BOOT_FILE_LFS_SYS_ENABLE
+#define BOOT_FILE_LFS_SYS_ENABLE         (0)
+#endif
+
+#if (BOOT_FILE_LFS_SYS_ENABLE < 0) || (BOOT_FILE_LFS_SYS_ENABLE > 1)
+#error "BOOT_FILE_LFS_SYS_ENABLE must be 0 or 1"
+#endif
+
+#if (BOOT_FILE_FAT_SYS_ENABLE > 0) || (BOOT_FILE_LFS_SYS_ENABLE > 0) && (BOOT_FILE_LFS_SYS_ENABLE == 0)
+#error BOOT_FILE_SYS_ENABLE must be 1 when BOOT_FILE_FAT_SYS_ENABLE or BOOT_FILE_LFS_SYS_ENABLE are 1
+#endif
+
 #if (BOOT_FILE_SYS_ENABLE > 0)
 #ifndef BOOT_FILE_LOGGING_ENABLE
 #define BOOT_FILE_LOGGING_ENABLE         (0)

@@ -34,7 +34,7 @@
 #include <ctype.h>                                    /* for toupper() etc.            */
 
 
-#if (BOOT_FILE_SYS_ENABLE > 0)
+#if (BOOT_FILE_LFS_SYS_ENABLE > 0)
 /****************************************************************************************
 * Type definitions
 ****************************************************************************************/
@@ -98,6 +98,7 @@ static tFileEraseInfo       eraseInfo;
 /** \brief Local character buffer for storing the string with log information. */
 static blt_char             loggingStr[64];
 #endif
+static struct lfs_file_config lfs_file_config;
 
 
 /***********************************************************************************//**
@@ -226,7 +227,7 @@ void FileTask(void)
     FileFirmwareUpdateLogHook("Opening firmware file for reading...");
 #endif
     /* attempt to obtain a file object for the firmware file */
-    if (lfs_file_open(&fatFsObjects.fs, &fatFsObjects.file, FileGetFirmwareFilenameHook(), LFS_O_RDONLY) != 0)
+    if (lfs_file_opencfg(&fatFsObjects.fs, &fatFsObjects.file, FileGetFirmwareFilenameHook(), LFS_O_RDONLY, &lfs_file_config) != 0)
     {
       /* cannot continue with firmware update so go back to idle state */
       firmwareUpdateState = FIRMWARE_UPDATE_STATE_IDLE;
