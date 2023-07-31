@@ -81,7 +81,8 @@ extern void            FileFirmwareUpdateStartedHook(void);
 extern void            FileFirmwareUpdateCompletedHook(void);
 extern void            FileFirmwareUpdateErrorHook(blt_int8u error_code);
 extern void            FileFirmwareUpdateLogHook(blt_char *info_string);
-
+/** \brief Initializes the lfs_config struct. Has to be implemented by the integrator */
+extern void            FileInitLfsHook(struct lfs_config *config);
 
 /****************************************************************************************
 * Local data declarations
@@ -116,9 +117,8 @@ void FileInit(void)
   /* set the initial state */
   firmwareUpdateState = FIRMWARE_UPDATE_STATE_IDLE;
   /* mount the file system, using logical disk 0 */
-  const struct lfs_config config = {
-
-  };
+  struct lfs_config config;
+  FileInitLfsHook(&config);
   err = lfs_mount(&fatFsObjects.fs, &config);
   ASSERT_RT(err == 0);
 
