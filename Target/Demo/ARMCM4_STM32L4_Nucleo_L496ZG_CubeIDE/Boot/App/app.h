@@ -34,6 +34,7 @@
 void AppInit(void);
 void AppTask(void);
 
+extern void AppInitHook();
 
 #endif /* APP_H */
 /*********************************** end of app.h **************************************/
