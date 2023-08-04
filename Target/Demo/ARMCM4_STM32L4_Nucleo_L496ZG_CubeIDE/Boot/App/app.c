@@ -41,7 +41,6 @@
 ****************************************************************************************/
 void AppInit(void)
 {
-  AppInitHook();
   /* initialize the bootloader */
   BootInit();
 } /*** end of AppInit ***/
