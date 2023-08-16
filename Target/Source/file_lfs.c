@@ -57,8 +57,10 @@ typedef struct
 /** \brief Structure type for grouping FATFS related objects used by this module. */
 typedef struct
 {
-  lfs_t fs;                                      /**< file system object for mouting   */
-  lfs_file_t file;                               /**< file object for firmware file    */
+  lfs_t fs;                                      /**< file system object for mouting       */
+  lfs_file_t file;                               /**< file object for firmware file        */
+  struct lfs_file_config file_config;            /**< file configuration for firmware file */
+  blt_int8u file_cache[4096];                    /**< Cache used by file_config            */
 } tFatFsObjects;
 
 /****************************************************************************************
@@ -99,7 +101,6 @@ static tFileEraseInfo       eraseInfo;
 /** \brief Local character buffer for storing the string with log information. */
 static blt_char             loggingStr[64];
 #endif
-static struct lfs_file_config lfs_file_config;
 
 
 /***********************************************************************************//**
@@ -226,7 +227,11 @@ void FileTask(void)
     FileFirmwareUpdateLogHook("Opening firmware file for reading...");
 #endif
     /* attempt to obtain a file object for the firmware file */
-    if (lfs_file_opencfg(&fatFsObjects.fs, &fatFsObjects.file, FileGetFirmwareFilenameHook(), LFS_O_RDONLY, &lfs_file_config) != 0)
+    fatFsObjects.file_config = (struct lfs_file_config){
+        .buffer = &fatFsObjects.file_cache,
+        0
+    };
+    if (lfs_file_opencfg(&fatFsObjects.fs, &fatFsObjects.file, FileGetFirmwareFilenameHook(), LFS_O_RDONLY, &fatFsObjects.file_config) != 0)
     {
       /* cannot continue with firmware update so go back to idle state */
       firmwareUpdateState = FIRMWARE_UPDATE_STATE_IDLE;
