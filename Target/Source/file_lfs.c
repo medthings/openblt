@@ -206,7 +206,6 @@ static int read_line(char *buf, int sz, lfs_t *fs, lfs_file_t *file)
 void FileTask(void)
 {
   blt_int16s  parse_result = 0;
-  blt_char   *read_line_ptr;
 
   /* ------------------------------- idle -------------------------------------------- */
   if (firmwareUpdateState == FIRMWARE_UPDATE_STATE_IDLE)
@@ -277,7 +276,7 @@ void FileTask(void)
       return;
     }
     /* parse the S-Record line without copying the data values if the line is not empty */
-    if (read_line_ptr != BLT_NULL)
+    else
     {
       parse_result = FileSrecParseLine(lineParseObject.line, &lineParseObject.address, BLT_NULL);
       /* check parsing result */
@@ -443,7 +442,7 @@ void FileTask(void)
       return;
     }
     /* parse the S-Record line if the line is not empty */
-    if (read_line_ptr != BLT_NULL)
+    else
     {
       parse_result = FileSrecParseLine(lineParseObject.line, &lineParseObject.address, lineParseObject.data);
       /* check parsing result */
