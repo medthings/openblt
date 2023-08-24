@@ -57,11 +57,12 @@ typedef struct
 /** \brief Structure type for grouping FATFS related objects used by this module. */
 typedef struct
 {
-  lfs_t fs;                                      /**< file system object for mouting       */
   lfs_file_t file;                               /**< file object for firmware file        */
   struct lfs_file_config file_config;            /**< file configuration for firmware file */
   blt_int8u file_cache[4096];                    /**< Cache used by file_config            */
 } tFatFsObjects;
+
+lfs_t blt_lfs;                                   /**< file system object for mounting      */
 
 /****************************************************************************************
 * Function prototypes
@@ -119,7 +120,7 @@ void FileInit(void)
   firmwareUpdateState = FIRMWARE_UPDATE_STATE_IDLE;
   /* mount the file system, using logical disk 0 */
   struct lfs_config *config = FileInitLfsHook();
-  err = lfs_mount(&fatFsObjects.fs, config);
+  err = lfs_mount(&blt_lfs, config);
   ASSERT_RT(err == 0);
 
 //  fresult = f_mount(&fatFsObjects.fs, "0:", 0);
@@ -230,7 +231,7 @@ void FileTask(void)
         .buffer = &fatFsObjects.file_cache,
         0
     };
-    if (lfs_file_opencfg(&fatFsObjects.fs, &fatFsObjects.file, FileGetFirmwareFilenameHook(), LFS_O_RDONLY, &fatFsObjects.file_config) != 0)
+    if (lfs_file_opencfg(&blt_lfs, &fatFsObjects.file, FileGetFirmwareFilenameHook(), LFS_O_RDONLY, &fatFsObjects.file_config) != 0)
     {
       /* cannot continue with firmware update so go back to idle state */
       firmwareUpdateState = FIRMWARE_UPDATE_STATE_IDLE;
@@ -259,7 +260,7 @@ void FileTask(void)
   else if (firmwareUpdateState == FIRMWARE_UPDATE_STATE_ERASING)
   {
     /* read a line from the file */
-    int err = read_line(lineParseObject.line, sizeof(lineParseObject.line), &fatFsObjects.fs, &fatFsObjects.file);
+    int err = read_line(lineParseObject.line, sizeof(lineParseObject.line), &blt_lfs, &fatFsObjects.file);
     /* check if an error occurred */
     if (err != 0)
     {
@@ -272,7 +273,7 @@ void FileTask(void)
       FileFirmwareUpdateErrorHook(FILE_ERROR_CANNOT_READ_FROM_FILE);
 #endif
       /* close the file */
-      lfs_file_close(&fatFsObjects.fs, &fatFsObjects.file);
+      lfs_file_close(&blt_lfs, &fatFsObjects.file);
       return;
     }
     /* parse the S-Record line without copying the data values if the line is not empty */
@@ -291,7 +292,7 @@ void FileTask(void)
         FileFirmwareUpdateErrorHook(FILE_ERROR_INVALID_CHECKSUM_IN_FILE);
 #endif
         /* close the file */
-        lfs_file_close(&fatFsObjects.fs, &fatFsObjects.file);
+        lfs_file_close(&blt_lfs, &fatFsObjects.file);
         return;
       }
     }
@@ -346,7 +347,7 @@ void FileTask(void)
             FileFirmwareUpdateErrorHook(FILE_ERROR_CANNOT_ERASE_MEMORY);
             #endif
             /* close the file */
-            lfs_file_close(&fatFsObjects.fs, &fatFsObjects.file);
+            lfs_file_close(&blt_lfs, &fatFsObjects.file);
             return;
           }
           #if (BOOT_FILE_LOGGING_ENABLE > 0)
@@ -361,11 +362,11 @@ void FileTask(void)
       }
     }
     /* check if the end of the file was reached */
-    int eof = lfs_file_tell(&fatFsObjects.fs, &fatFsObjects.file) == lfs_file_size(&fatFsObjects.fs, &fatFsObjects.file);
+    int eof = lfs_file_tell(&blt_lfs, &fatFsObjects.file) == lfs_file_size(&blt_lfs, &fatFsObjects.file);
     if (eof)
     {
       /* rewind the file in preparation for the programming state */
-      if (lfs_file_seek(&fatFsObjects.fs, &fatFsObjects.file, 0, LFS_SEEK_SET) != 0)
+      if (lfs_file_seek(&blt_lfs, &fatFsObjects.file, 0, LFS_SEEK_SET) != 0)
       {
         /* cannot continue with firmware update so go back to idle state */
         firmwareUpdateState = FIRMWARE_UPDATE_STATE_IDLE;
@@ -376,7 +377,7 @@ void FileTask(void)
         FileFirmwareUpdateErrorHook(FILE_ERROR_REWINDING_FILE_READ_POINTER);
 #endif
         /* close the file */
-        lfs_file_close(&fatFsObjects.fs, &fatFsObjects.file);
+        lfs_file_close(&blt_lfs, &fatFsObjects.file);
         return;
       }
       /* still here so we are ready to perform the last memory erase operation, if there
@@ -410,7 +411,7 @@ void FileTask(void)
           FileFirmwareUpdateErrorHook(FILE_ERROR_CANNOT_ERASE_MEMORY);
           #endif
           /* close the file */
-          lfs_file_close(&fatFsObjects.fs, &fatFsObjects.file);
+          lfs_file_close(&blt_lfs, &fatFsObjects.file);
           return;
         }
       }
@@ -425,7 +426,7 @@ void FileTask(void)
   else if (firmwareUpdateState == FIRMWARE_UPDATE_STATE_PROGRAMMING)
   {
     /* read a line from the file */
-    int err = read_line(lineParseObject.line, sizeof(lineParseObject.line), &fatFsObjects.fs, &fatFsObjects.file);
+    int err = read_line(lineParseObject.line, sizeof(lineParseObject.line), &blt_lfs, &fatFsObjects.file);
     /* check if an error occurred */
     if (err)
     {
@@ -438,7 +439,7 @@ void FileTask(void)
       FileFirmwareUpdateErrorHook(FILE_ERROR_CANNOT_READ_FROM_FILE);
 #endif
       /* close the file */
-      lfs_file_close(&fatFsObjects.fs, &fatFsObjects.file);
+      lfs_file_close(&blt_lfs, &fatFsObjects.file);
       return;
     }
     /* parse the S-Record line if the line is not empty */
@@ -457,7 +458,7 @@ void FileTask(void)
         FileFirmwareUpdateErrorHook(FILE_ERROR_INVALID_CHECKSUM_IN_FILE);
 #endif
         /* close the file */
-        lfs_file_close(&fatFsObjects.fs, &fatFsObjects.file);
+        lfs_file_close(&blt_lfs, &fatFsObjects.file);
         return;
       }
     }
@@ -490,7 +491,7 @@ void FileTask(void)
         FileFirmwareUpdateErrorHook(FILE_ERROR_CANNOT_PROGRAM_MEMORY);
 #endif
         /* close the file */
-        lfs_file_close(&fatFsObjects.fs, &fatFsObjects.file);
+        lfs_file_close(&blt_lfs, &fatFsObjects.file);
         return;
       }
 #if (BOOT_FILE_LOGGING_ENABLE > 0)
@@ -498,7 +499,7 @@ void FileTask(void)
 #endif
     }
     /* check if the end of the file was reached */
-    int eof = lfs_file_tell(&fatFsObjects.fs,&fatFsObjects.file) == lfs_file_size(&fatFsObjects.fs,&fatFsObjects.file);
+    int eof = lfs_file_tell(&blt_lfs,&fatFsObjects.file) == lfs_file_size(&blt_lfs,&fatFsObjects.file);
     if (eof)
     {
 #if (BOOT_FILE_LOGGING_ENABLE > 0)
@@ -516,7 +517,7 @@ void FileTask(void)
         FileFirmwareUpdateErrorHook(FILE_ERROR_CANNOT_WRITE_CHECKSUM);
 #endif
         /* close the file */
-        lfs_file_close(&fatFsObjects.fs, &fatFsObjects.file);
+        lfs_file_close(&blt_lfs, &fatFsObjects.file);
         return;
       }
 #if (BOOT_FILE_LOGGING_ENABLE > 0)
@@ -524,7 +525,7 @@ void FileTask(void)
       FileFirmwareUpdateLogHook("Closing firmware file\n\r");
 #endif
       /* close the file */
-      lfs_file_close(&fatFsObjects.fs, &fatFsObjects.file);
+      lfs_file_close(&blt_lfs, &fatFsObjects.file);
 #if (BOOT_FILE_LOGGING_ENABLE > 0)
       FileFirmwareUpdateLogHook("Firmware update successfully completed\n\r");
 #endif

@@ -96,6 +96,8 @@ tSrecLineType FileSrecGetLineType(const blt_char *line);
 blt_bool      FileSrecVerifyChecksum(const blt_char *line);
 blt_int16s    FileSrecParseLine(const blt_char *line, blt_addr *address, blt_int8u *data);
 
+extern lfs_t blt_lfs;                            /**< file system object for mounting      */
+
 #endif /* BOOT_FILE_LFS_SYS_ENABLE > 0 */
 
 
