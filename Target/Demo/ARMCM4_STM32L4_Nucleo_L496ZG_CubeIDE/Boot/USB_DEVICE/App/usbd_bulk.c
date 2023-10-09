@@ -266,6 +266,7 @@ __ALIGN_BEGIN uint8_t USBD_Bulk_MSOS20Desc[USB_LEN_MSOS20_DESC] __ALIGN_END =
 static uint8_t  USBD_Bulk_Init (USBD_HandleTypeDef *pdev,
                                 uint8_t cfgidx)
 {
+  (void)cfgidx;
   uint8_t ret = 0;
   
   /* Open EP IN */
@@ -299,6 +300,7 @@ static uint8_t  USBD_Bulk_Init (USBD_HandleTypeDef *pdev,
 static uint8_t  USBD_Bulk_DeInit (USBD_HandleTypeDef *pdev,
                                   uint8_t cfgidx)
 {
+  (void)cfgidx;
   uint8_t ret = 0;
   
   /* Close EP IN */
@@ -391,6 +393,9 @@ static uint8_t  USBD_Bulk_Setup (USBD_HandleTypeDef *pdev,
   */
 static uint8_t  USBD_Bulk_DataIn (USBD_HandleTypeDef *pdev, uint8_t epnum)
 {
+  (void)pdev;
+  (void)epnum;
+
   /* endpoint finished the previous transmission so see if more data is left */
   UsbTransmitPipeBulkIN();
   return USBD_OK;
@@ -405,6 +410,8 @@ static uint8_t  USBD_Bulk_DataIn (USBD_HandleTypeDef *pdev, uint8_t epnum)
   */
 static uint8_t  USBD_Bulk_DataOut (USBD_HandleTypeDef *pdev, uint8_t epnum)
 {
+  (void)pdev;
+
   /* read the data from the bulk OUT pipe */
   UsbReceivePipeBulkOUT(epnum);
   return USBD_OK;

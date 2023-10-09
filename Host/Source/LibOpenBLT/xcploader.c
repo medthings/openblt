@@ -122,12 +122,12 @@ static bool xcpConnected;
 static bool xcpSlaveIsIntel;
 
 /** \brief The max number of bytes in the command transmit object (master->slave). */
-static uint8_t xcpMaxCto;
+static uint32_t xcpMaxCto;
 
 /** \brief The max number of bytes in the command transmit object (master->slave) during
  *         a programming session.
  */
-static uint8_t xcpMaxProgCto;
+static uint32_t xcpMaxProgCto;
 
 /** \brief The max number of bytes in the data transmit object (slave->master). */
 static uint16_t xcpMaxDto;

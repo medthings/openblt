@@ -1479,6 +1479,7 @@ static void XcpCmdProgramReset(blt_int8u *data)
 ****************************************************************************************/
 static void XcpCmdProgramPrepare(blt_int8u *data)
 {
+  (void)data;
 #if (XCP_SEED_KEY_PROTECTION_EN == 1)
   /* check if PGM resource is unlocked */
   if ((xcpInfo.protection & XCP_RES_PGM) == XCP_RES_PGM)

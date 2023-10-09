@@ -43,6 +43,8 @@
 ****************************************************************************************/
 void AssertFailure(blt_char *file, blt_int32u line)
 {
+  (void)file;
+  (void)line;
   /* hang the software so that it requires a hard reset */
   for (;;)
   {

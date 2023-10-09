@@ -104,8 +104,8 @@ static uint32_t ExtractTransportTypeFromCommandLine(int argc, char const * const
 static void * ExtractTransportSettingsFromCommandLine(int argc, 
                                                       char const * const argv[],
                                                       uint32_t transportType);
-static char const * const ExtractFirmwareFileFromCommandLine(int argc, 
-                                                             char const * const argv[]);
+static char const * ExtractFirmwareFileFromCommandLine(int argc,
+                                                       char const * const argv[]);
 static char const * GetLineTrailerByResult(bool errorDetected);
 static char const * GetLineTrailerByPercentage(uint8_t percentage);
 static void ErasePercentageTrailer(void);
@@ -1334,8 +1334,8 @@ static void * ExtractTransportSettingsFromCommandLine(int argc,
 ** \return    Pointer to the character array (string) with the firmware file.
 **
 ****************************************************************************************/
-static char const * const ExtractFirmwareFileFromCommandLine(int argc, 
-                                                             char const * const argv[])
+static char const * ExtractFirmwareFileFromCommandLine(int argc,
+                                                       char const * const argv[])
 {
   char const * result = NULL;
   uint8_t paramIdx;
@@ -1445,5 +1445,3 @@ static void ErasePercentageTrailer(void)
 
 
 /*********************************** end of main.c *************************************/
-
-
